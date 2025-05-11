@@ -1,0 +1,28 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.SERVER_HOST}}
+          username: ${{secrets.SERVER_USERNAME}}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/projects/youtube-extractor/backend
+            git pull origin main  # Pull latest changes
+            npm ci --legacy-peer-deps # Install dependencies (if needed)
+            npm run build  # Build project (if applicable)
+            npx prisma migrate dev --name "update_migration"
+            pm2 restart youtube-extractor  # Restart the app if using PM2
