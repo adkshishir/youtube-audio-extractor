@@ -28,6 +28,20 @@ type ExtractionResult = {
   downloadPath: string
 }
 
+const COOKIES_PATH = "/home/youruser/cookies.txt";
+
+const YT_DLP_OPTIONS = [
+  "--no-check-certificates",
+  "--no-cache-dir",
+  "--extractor-retries 3",
+  "--force-ipv4",
+  "--geo-bypass",
+  "--ignore-errors",
+  "--no-warnings",
+  "--user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'",
+  `--cookies ${COOKIES_PATH}`
+].join(" ");
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [videoUrl, setVideoUrl] = useState("")

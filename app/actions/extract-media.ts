@@ -24,6 +24,8 @@ type ExtractionResult = {
 // In-memory storage (would use a database in production)
 const extractionResults = new Map<string, ExtractionResult>()
 
+const COOKIES_PATH = path.join(process.cwd(), "cookies.txt"); // Always points to root folder
+
 // Common yt-dlp options to bypass restrictions
 const YT_DLP_OPTIONS = [
   "--no-check-certificates",
@@ -34,6 +36,7 @@ const YT_DLP_OPTIONS = [
   "--ignore-errors",
   "--no-warnings",
   "--user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'",
+  `--cookies ${COOKIES_PATH}`
 ].join(" ")
 
 // Get video info using yt-dlp

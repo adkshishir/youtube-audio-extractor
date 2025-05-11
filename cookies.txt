@@ -1,0 +1,6 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+localhost	FALSE	/	FALSE	1749490516	next-auth.session-token	eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..9A950VrTSLr7gGYZ.TqYVPyNI4Z0VNXBw00MOgTOQvQ0fMbmvl8heqLcDu1i4oqQS1zYhu75HTbIhkOD0rvI8dlr3w-0hs0-BoklrxksknGVG32i6bssj4XpxcUbrMjphDsXvfjTfX6XVb8c20du2yA8CZRpeZcR5v8at19Cj5m53kW-PdnSpGQYaq0SCGozydTLA1ai9moVvb8WbfIreAvpjbyJ31hHPXA2QYN99Pk9-vtYec_rgKXo22WyXgqhMY-H5gSmc5lf8uk8ujg.mySwC3-mHdK1oeyekRTaTQ
+localhost	FALSE	/	FALSE	0	__next_hmr_refresh_hash__	46ad487494727ea448d9682f2e7c197d633457081244afec
