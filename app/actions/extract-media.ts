@@ -59,15 +59,33 @@ export async function extractMedia(videoId: string, format: "mp3" | "mp4"): Prom
     const title = videoInfo.title
     const safeTitle = title.replace(/[^a-z0-9]/gi, "_").toLowerCase()
 
-    // Generate unique ID for this extraction
-    const extractionId = uuidv4()
-    // Ensure proper file extension
+    // Deterministic file name based on videoId and format
     const extension = format === "mp3" ? ".mp3" : ".mp4"
-    const outputFileName = `${safeTitle}_${extractionId}${extension}`
+    const outputFileName = `${safeTitle}_${videoId}${extension}`
     const outputPath = path.join(process.cwd(), "downloads", outputFileName)
 
     // Create downloads directory if it doesn't exist
     await fs.mkdir(path.join(process.cwd(), "downloads"), { recursive: true })
+
+    // Check if file already exists
+    try {
+      await fs.access(outputPath)
+      // File exists, return its info
+      const stats = await fs.stat(outputPath)
+      return {
+        id: videoId,
+        videoId,
+        title,
+        format,
+        fileName: outputFileName,
+        filePath: outputPath,
+        size: stats.size,
+        createdAt: stats.birthtime,
+        downloadPath: `/downloads/${outputFileName}`,
+      }
+    } catch {
+      // File does not exist, proceed with extraction
+    }
 
     try {
       // Download and extract using yt-dlp
@@ -101,7 +119,7 @@ export async function extractMedia(videoId: string, format: "mp3" | "mp4"): Prom
 
       // Create extraction result
       const result: ExtractionResult = {
-        id: extractionId,
+        id: videoId,
         videoId,
         title,
         format,
@@ -113,7 +131,7 @@ export async function extractMedia(videoId: string, format: "mp3" | "mp4"): Prom
       }
 
       // Store the result
-      extractionResults.set(extractionId, result)
+      extractionResults.set(videoId, result)
 
       return result
     } catch (execError: any) {

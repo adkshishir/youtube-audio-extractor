@@ -255,42 +255,22 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground">{selectedVideo.channelTitle}</p>
                 </div>
 
-                <Tabs defaultValue="mp3" onValueChange={handleFormatChange} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="mp3" className="flex items-center gap-2">
-                      <Music className="h-4 w-4" />
-                      Audio (MP3)
-                    </TabsTrigger>
-                    <TabsTrigger value="mp4" className="flex items-center gap-2">
-                      <Video className="h-4 w-4" />
-                      Video (MP4)
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="mp3" className="pt-4">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Extract audio only in MP3 format. Smaller file size, perfect for music or podcasts.
-                      </p>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <Badge variant="outline">High Quality</Badge>
-                        <Badge variant="outline">Smaller Size</Badge>
-                        <Badge variant="outline">MP3 Format</Badge>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="mp4" className="pt-4">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Download the complete video in MP4 format. Includes both video and audio.
-                      </p>
-                      <div className="flex gap-2 text-xs text-muted-foreground">
-                        <Badge variant="outline">Full HD</Badge>
-                        <Badge variant="outline">Best Quality</Badge>
-                        <Badge variant="outline">MP4 Format</Badge>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                <div>
+                  <label>Select Format</label>
+                  <select
+                    value={extractionFormat}
+                    onChange={e => handleFormatChange(e.target.value)}
+                    disabled={isExtracting}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Choose a format...</option>
+                    <option value="mp3">Audio (MP3)</option>
+                    <option value="mp4">Video (MP4)</option>
+                    <option value="mov">Video (MOV)</option>
+                    <option value="webm">Video (WebM)</option>
+                    <option value="mkv">Video (MKV)</option>
+                  </select>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">

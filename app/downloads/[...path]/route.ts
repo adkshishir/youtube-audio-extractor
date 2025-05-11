@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
 import path from 'path'
+import { promises as fs } from 'fs'
 
 export async function GET(
   request: Request,
   { params }: { params: { path: string[] } }
 ) {
   try {
+    // Ensure params.path is available
+    if (!params?.path) {
+      return new NextResponse('File path not provided', { status: 400 })
+    }
+
     // Get the file path from params
     const filePath = path.join(process.cwd(), 'downloads', ...params.path)
 
@@ -14,7 +19,6 @@ export async function GET(
     try {
       await fs.access(filePath)
     } catch (error) {
-      console.error('File not found:', filePath)
       return new NextResponse('File not found', { status: 404 })
     }
 
@@ -23,21 +27,22 @@ export async function GET(
     const fileName = params.path[params.path.length - 1]
 
     // Determine content type
-    const contentType = fileName.endsWith('.mp3') ? 'audio/mpeg' : 'video/mp4'
+    const contentType = fileName.endsWith('.mp3') 
+      ? 'audio/mpeg' 
+      : fileName.endsWith('.mp4') 
+        ? 'video/mp4' 
+        : 'application/octet-stream'
 
-    // Create headers
-    const headers = new Headers({
-      'Content-Disposition': `attachment; filename="${fileName}"`,
-      'Content-Type': contentType,
-      'Content-Length': fileBuffer.length.toString(),
+    // Return the file with appropriate headers
+    return new NextResponse(fileBuffer, {
+      headers: {
+        'Content-Type': contentType,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
+        'Content-Length': fileBuffer.length.toString(),
+      },
     })
-
-    // Return the file as a stream
-    return new NextResponse(fileBuffer, { headers })
   } catch (error) {
     console.error('Error serving file:', error)
-    return new NextResponse('Error serving file: ' + (error instanceof Error ? error.message : 'Unknown error'), { 
-      status: 500 
-    })
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 } 

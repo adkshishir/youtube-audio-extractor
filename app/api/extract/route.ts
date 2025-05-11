@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import ytdl from 'ytdl-core'
 import { getVideoInfo } from '@/lib/youtube'
 
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000 // 1 second
+
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 export async function POST(request: Request) {
   try {
     const { url } = await request.json()
@@ -10,44 +17,54 @@ export async function POST(request: Request) {
       return new NextResponse('URL is required', { status: 400 })
     }
 
-    const videoInfo = await getVideoInfo(url)
-    if (!videoInfo) {
-      return new NextResponse('Failed to fetch video info', { status: 400 })
+    // Validate YouTube URL
+    if (!ytdl.validateURL(url)) {
+      return new NextResponse('Invalid YouTube URL', { status: 400 })
     }
 
-    // Get available formats
-    const formats = videoInfo.formats.filter(format => 
-      format.hasAudio && format.hasVideo && 
-      (format.container === 'mp4' || format.container === 'mov')
-    ).map(format => ({
-      itag: format.itag,
-      quality: format.quality,
-      container: format.container,
-      hasAudio: format.hasAudio,
-      hasVideo: format.hasVideo,
-      contentLength: format.contentLength,
-      mimeType: format.mimeType,
-    }))
+    console.log('Starting video extraction for URL:', url)
+    
+    let lastError: Error | null = null
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`Attempt ${attempt} of ${MAX_RETRIES}`)
+        const videoInfo = await getVideoInfo(url)
+        
+        if (!videoInfo) {
+          throw new Error('No video info returned')
+        }
 
-    // Get audio-only format
-    const audioFormat = videoInfo.formats.find(format => 
-      format.hasAudio && !format.hasVideo && format.container === 'mp4'
+        console.log('Successfully extracted video info:', {
+          id: videoInfo.id,
+          title: videoInfo.title,
+          duration: videoInfo.duration,
+          formats: videoInfo.formats.length,
+          hasAudio: !!videoInfo.audioFormat
+        })
+
+        return NextResponse.json(videoInfo)
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error)
+        lastError = error instanceof Error ? error : new Error(String(error))
+        
+        if (attempt < MAX_RETRIES) {
+          console.log(`Retrying in ${RETRY_DELAY}ms...`)
+          await delay(RETRY_DELAY)
+        }
+      }
+    }
+
+    // If we get here, all retries failed
+    console.error('All extraction attempts failed:', lastError)
+    return new NextResponse(
+      lastError?.message || 'Failed to extract video info after multiple attempts',
+      { status: 400 }
     )
-
-    return NextResponse.json({
-      title: videoInfo.title,
-      thumbnail: videoInfo.thumbnail,
-      duration: videoInfo.duration,
-      formats,
-      audioFormat: audioFormat ? {
-        itag: audioFormat.itag,
-        container: audioFormat.container,
-        mimeType: audioFormat.mimeType,
-        contentLength: audioFormat.contentLength,
-      } : null,
-    })
   } catch (error) {
-    console.error('Error extracting video:', error)
-    return new NextResponse('Internal Server Error', { status: 500 })
+    console.error('Error in extract API:', error)
+    return new NextResponse(
+      error instanceof Error ? error.message : 'Internal Server Error', 
+      { status: 500 }
+    )
   }
 }
