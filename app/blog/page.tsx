@@ -32,7 +32,8 @@ async function getBlogPosts(): Promise<BlogPost[]> {
   });
    
   if (!response.ok) {
-    throw new Error('Failed to fetch blog posts');
+    // throw new Error('Failed to fetch blog posts');
+    return [];
   }
 
   return response.json();
