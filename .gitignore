@@ -22,6 +22,7 @@ yarn-error.log*
 # vercel
 .vercel
 downloads/*
+cookies.txt
 
 # typescript
 *.tsbuildinfo
