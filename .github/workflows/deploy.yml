@@ -20,7 +20,7 @@ jobs:
           username: ${{secrets.SERVER_USERNAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/projects/youtube-extractor/backend
+            cd /home/ubuntu/projects/youtube-extractor/frontend
             git pull origin main  # Pull latest changes
             npm ci --legacy-peer-deps # Install dependencies (if needed)
             npm run build  # Build project (if applicable)
